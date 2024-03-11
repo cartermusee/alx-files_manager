@@ -7,33 +7,30 @@ class AuthController {
   static async getConnect(req, res) {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Basic')) {
-      res.status(401).json({ error: 'Unauthorized' });
-      res.end();
-      return;
+    if (!authHeader || !authHeader.startsWith('Basic ')) {
+      return res.status(401).json({ error: 'Unauthorized no headder' });
     }
-    const credentials = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-    const email = credentials[0];
-    const password = sh1(credentials[1]);
-    const user = await dbClient.userExist(email);
-    if (!user || user.password !== password) {
-      res.status(401).json({ error: 'Unauthorized' });
-      res.end();
-      return;
-    }
-    const token = uid.v4();
-    const key = `auth_${token}`;
+    const encodedCredentials = authHeader.split(' ')[1];
+    const decodedCredentials = Buffer.from(encodedCredentials, 'base64').toString('utf-8');
+    const [email, password] = decodedCredentials.split(':');
+
+
     try {
+      const user = await dbClient.userExist(email);
+      if (!user || user.password !== sh1(password)) {
+        return res.status(401).json({ error: 'Unauthorized no user' });
+      }
+      const token = uid.v4();
+      const key = `auth_${token}`;
+      
       await redisClient.set(key, user._id.toString(), 86400);
-      res.status(200).json({ token });
-      res.end();
-      return;
+      return res.status(200).json({ token });
     } catch (error) {
       console.log(error);
     }
   }
 
-  static async getDisconnect(res, req) {
+  static async getDisconnect(req, res) {
     const token = req.headers.authorization;
     if (!token) {
       res.status(401).json({ error: 'Unauthorized' });

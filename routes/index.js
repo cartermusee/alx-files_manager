@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.get('/status', controller.getStatus);
 router.get('/stats', controller.getStats);
-router.get('//users/me', users.getMe);
+router.get('/users/me', users.getMe);
 router.post('/users', users.postNew);
 
 router.get('/connect', authController.getConnect);
