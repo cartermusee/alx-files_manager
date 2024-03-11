@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 const sha1 = require('sha1');
 
 class DBClient {
@@ -39,6 +39,11 @@ class DBClient {
 
   async userExist(email) {
     const user = await this.client.db(this.database).collection('users').find({ email }).toArray();
+    return user;
+  }
+
+  async getUserById(userId) {
+    const user = await this.client.db(this.database).collection('users').findOne({ _id: ObjectId(userId) });
     return user[0];
   }
 }
