@@ -1,7 +1,3 @@
-const express = require('express');
-
-const router = express.Router();
-
 const db = require('../utils/db');
 
 class UsersController {
@@ -9,19 +5,27 @@ class UsersController {
     const { email, password } = req.body;
 
     if (!email) {
-      return res.status(400).json({ error: 'Missing email' });
+      res.status(400).json({ error: 'Missing email' });
+      res.end();
+      return;
     }
     if (!password) {
-      return res.status(400).json({ error: 'Missing password' });
+      res.status(400).json({ error: 'Missing password' });
+      res.end();
+      return;
     }
     try {
       const existingUser = await db.userExist(email);
       if (existingUser) {
-        return res.status(400).json({ error: 'Already exist' });
+        res.status(400).json({ error: 'Already exist' });
+        res.end();
+        return;
       }
 
       const newUser = await db.createUser(email, password);
-      return res.status(201).json({ id: newUser.id, email });
+      res.status(201).json({ id: newUser._id, email });
+      res.end();
+      return;
     } catch (error) {
       console.log(error);
     }
