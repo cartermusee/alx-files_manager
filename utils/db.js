@@ -39,11 +39,14 @@ class DBClient {
 
   async userExist(email) {
     const user = await this.client.db(this.database).collection('users').find({ email }).toArray();
-    return user;
+    return user[0];
   }
 
   async getUserById(userId) {
-    const user = await this.client.db(this.database).collection('users').findOne({ _id: ObjectId(userId) });
+    const user = await this.client.db(this.database).collection('users').find({ _id: ObjectId(userId) }).toArray();
+    if (!user.length) {
+      return null;
+    }
     return user[0];
   }
 }

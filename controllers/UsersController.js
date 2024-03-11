@@ -15,6 +15,7 @@ class UsersController {
       res.end();
       return;
     }
+
     try {
       const existingUser = await dbClient.userExist(email);
       if (existingUser) {
@@ -22,7 +23,6 @@ class UsersController {
         res.end();
         return;
       }
-
       const newUser = await dbClient.createUser(email, password);
       res.status(201).json({ id: newUser.insertedId, email });
       res.end();
@@ -33,11 +33,9 @@ class UsersController {
   }
 
   static async getMe(req, res) {
-    const token = req.headers.authorization;
+    const token = req.headers['x-token'];
     if (!token) {
-      res.status(401).json({ error: 'Unauthorized' });
-      res.end();
-      return;
+      return res.status(401).json({ error: 'Unauthorized' });
     }
     const key = `auth_${token}`;
 
@@ -51,14 +49,10 @@ class UsersController {
 
       const user = await dbClient.getUserById(userId);
       if (!user) {
-        res.status(204).json({ error: 'not found' });
-        res.end();
-        return;
+        return res.status(404).json({ error: 'Unauthorized db' });
       }
       const { email, _id } = user;
-      res.status(200).json({ email, id: _id });
-      res.end();
-      return;
+      return res.status(200).json({ id: _id , email});
     } catch (error) {
       console.log(error);
     }
