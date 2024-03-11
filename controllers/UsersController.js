@@ -42,9 +42,7 @@ class UsersController {
     try {
       const userId = await redisClient.get(key);
       if (!userId) {
-        res.status(401).json({ error: 'Unauthorized' });
-        res.end();
-        return;
+        return res.status(401).json({ error: 'Unauthorized' });
       }
 
       const user = await dbClient.getUserById(userId);
@@ -52,9 +50,10 @@ class UsersController {
         return res.status(404).json({ error: 'Unauthorized db' });
       }
       const { email, _id } = user;
-      return res.status(200).json({ id: _id , email});
+      return res.status(200).json({ id: _id, email });
     } catch (error) {
       console.log(error);
+      return res.status(500).json({ error: 'internal error' });
     }
   }
 }
