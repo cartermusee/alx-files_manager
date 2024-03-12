@@ -68,6 +68,19 @@ class DBClient {
       throw error;
     }
   }
+
+  async getFilesByParentId(userId, parentId, page, pageSize) {
+    try {
+      const files = await this.client.db(this.database).collection('files')
+        .find({ userId, parentId })
+        .skip(page * pageSize)
+        .limit(pageSize)
+        .toArray();
+      return files;
+    } catch (error) {
+      throw new Error(`Error fetching files by parentId: ${error.message}`);
+    }
+  }
 }
 
 const dbClient = new DBClient();
