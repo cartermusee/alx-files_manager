@@ -4,6 +4,7 @@ const controller = require('../controllers/AppController');
 
 const users = require('../controllers/UsersController');
 const authController = require('../controllers/AuthController');
+const filesController = require('../controllers/FilesController');
 
 const router = express.Router();
 
@@ -14,5 +15,7 @@ router.post('/users', users.postNew);
 
 router.get('/connect', authController.getConnect);
 router.get('/disconnect', authController.getDisconnect);
+
+router.post('/files', filesController.postUpload);
 
 module.exports = router;

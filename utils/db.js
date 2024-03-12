@@ -49,6 +49,25 @@ class DBClient {
     }
     return user[0];
   }
+
+  async createFile(userId, name, type, parentId, isPublic, localPath) {
+    try {
+      const fileData = {
+        userId,
+        name,
+        type,
+        parentId,
+        isPublic,
+        localPath,
+      };
+
+      const newFile = await this.client.db(this.database).collection('files').insertOne(fileData);
+      return newFile.ops[0];
+    } catch (error) {
+      console.error('Error creating file:', error);
+      throw error;
+    }
+  }
 }
 
 const dbClient = new DBClient();
