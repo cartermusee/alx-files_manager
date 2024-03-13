@@ -69,18 +69,62 @@ class DBClient {
     }
   }
 
+  async getFileById(fileId) {
+    try {
+      const file = await this.client.db(this.database).collection('files').findOne({ _id: ObjectId(fileId) });
+      return file;
+    } catch (error) {
+      console.error('Error fetching file by id:', error);
+      throw error;
+    }
+  }
+
+  async updateLocalPath(fileId, localPath) {
+    await this.client.db(this.database).collection('files').updateOne(
+      { _id: ObjectId(fileId) },
+      { $set: { localPath } }
+    );
+  }
+
   async getFilesByParentId(userId, parentId, page, pageSize) {
     try {
-      const files = await this.client.db(this.database).collection('files')
-        .find({ userId, parentId })
+      let query = { userId };
+      if (parentId) {
+        query.parentId = parentId;
+      } else {
+        query.parentId = '0'; // Assuming root directory has parentId '0'
+      }
+  
+      const files = await this.client
+        .db(this.database)
+        .collection('files')
+        .find(query)
         .skip(page * pageSize)
         .limit(pageSize)
         .toArray();
+        
       return files;
     } catch (error) {
       throw new Error(`Error fetching files by parentId: ${error.message}`);
     }
   }
+  
+  static async updateIsPublic(fileId, isPublic) {
+    try {
+      const result = await this.client.db(this.database).collection('files')
+        .updateOne(
+          { _id: fileId },
+          { $set: { isPublic: isPublic } }
+        );
+      if (result.modifiedCount === 0) {
+        throw new Error('File not found or not updated');
+      }
+      return result;
+    } catch (error) {
+      throw new Error(`Error updating isPublic: ${error.message}`);
+    }
+  }
+  
 }
 
 const dbClient = new DBClient();
